@@ -29,22 +29,27 @@ def generateNewGlass(frame):
 
 
 def generateImage(frame, glass_width, glass_height, top_left, degree):
+    
     resized_glass = cv2.resize(glass_image, (glass_width, glass_height))
-    resized_glass_gray = cv2.cvtColor(resized_glass, cv2.COLOR_BGR2GRAY)
+    print(resized_glass.shape)
+    rows,cols,asd = resized_glass.shape
+    M = cv2.getRotationMatrix2D((cols/2,rows/2),-degree,1)
+    tilted_image = cv2.warpAffine(resized_glass,M,(cols,rows))
+    tilted_image_gray = cv2.cvtColor(tilted_image, cv2.COLOR_BGR2GRAY)
     _, glass_mask = cv2.threshold(
-        resized_glass_gray, 25, 255, cv2.THRESH_BINARY_INV)
+        tilted_image_gray, 25, 255, cv2.THRESH_BINARY_INV)
 
     glass_area = frame[top_left[1]: top_left[1] + glass_height,
                       top_left[0]: top_left[0] + glass_width]
     glass_area_no_glass = cv2.bitwise_and(
         glass_area, glass_area, mask=glass_mask)
-    final_glass = cv2.add(glass_area_no_glass, resized_glass)
+    final_glass = cv2.add(glass_area_no_glass, tilted_image)
     frame[top_left[1]: top_left[1] + glass_height,
           top_left[0]: top_left[0] + glass_width] = final_glass
     return frame
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 glass_image = cv2.imread("images/glass2.png")
 
 
