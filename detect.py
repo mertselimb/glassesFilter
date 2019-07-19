@@ -5,13 +5,8 @@ from math import hypot
 
 # Loading Camera and Nose image and Creating mask
 cap = cv2.VideoCapture(0)
-nose_image = cv2.imread("glass3.png")
+nose_image = cv2.imread("images/glass3.png")
 
-tmp = cv2.cvtColor(nose_image, cv2.COLOR_BGR2GRAY)
-_,alpha = cv2.threshold(tmp,0,255,cv2.THRESH_BINARY)
-b, g, r = cv2.split(nose_image)
-rgba = [b,g,r, alpha]
-nose_image = cv2.merge(rgba,4)
 
 _, frame = cap.read()
 rows, cols, _ = frame.shape
