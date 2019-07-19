@@ -1,7 +1,14 @@
 import cv2
 import numpy as np
 import dlib
-from math import hypot,degrees,atan2
+from math import hypot, degrees, atan2
+
+
+def biggerThanZero(number):
+    if(number > 0):
+        return number
+    else:
+        return 0
 
 
 def generateNewGlass(frame):
@@ -13,34 +20,30 @@ def generateNewGlass(frame):
     right_glass = (landmarks.part(16).x, landmarks.part(16).y)
     bottom_glass = (landmarks.part(30).x, landmarks.part(30).y)
 
-    radian = atan2(bottom_glass[1]-center_glass[1],bottom_glass[0]-center_glass[0])
+    radian = atan2(bottom_glass[1]-center_glass[1],
+                   bottom_glass[0]-center_glass[0])
     degree = degrees(radian)-90
 
     glass_width = int(hypot(left_glass[0] - right_glass[0],
-                           left_glass[1] - right_glass[1])*1.1)
+                            left_glass[1] - right_glass[1])*1.1)
     glass_height = int(glass_width * 0.65)
 
-    top_left = (int(center_glass[0] - glass_width / 2),
-                top_glass[1]-20)
-    bottom_right = (int(center_glass[0] + glass_width / 2),
-                    int(center_glass[1] + glass_height / 2))
+    top_left = (biggerThanZero(int(center_glass[0] - glass_width / 2)), biggerThanZero(top_glass[1]-20))
 
     return glass_width, glass_height, top_left, degree
 
 
 def generateImage(frame, glass_width, glass_height, top_left, degree):
-    
     resized_glass = cv2.resize(glass_image, (glass_width, glass_height))
-    print(resized_glass.shape)
-    rows,cols,asd = resized_glass.shape
-    M = cv2.getRotationMatrix2D((cols/2,rows/2),-degree,1)
-    tilted_image = cv2.warpAffine(resized_glass,M,(cols,rows))
+    rows, cols, _  = resized_glass.shape
+    M = cv2.getRotationMatrix2D((cols/2, rows/2), -degree, 1)
+    tilted_image = cv2.warpAffine(resized_glass, M, (cols, rows))
     tilted_image_gray = cv2.cvtColor(tilted_image, cv2.COLOR_BGR2GRAY)
     _, glass_mask = cv2.threshold(
         tilted_image_gray, 25, 255, cv2.THRESH_BINARY_INV)
 
     glass_area = frame[top_left[1]: top_left[1] + glass_height,
-                      top_left[0]: top_left[0] + glass_width]
+                       top_left[0]: top_left[0] + glass_width]
     glass_area_no_glass = cv2.bitwise_and(
         glass_area, glass_area, mask=glass_mask)
     final_glass = cv2.add(glass_area_no_glass, tilted_image)
@@ -49,7 +52,7 @@ def generateImage(frame, glass_width, glass_height, top_left, degree):
     return frame
 
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 glass_image = cv2.imread("images/glass2.png")
 
 
@@ -70,7 +73,8 @@ while True:
 
     for face in faces:
         glass_width, glass_height, top_left, degree = generateNewGlass(frame)
-        frame = generateImage(frame, glass_width, glass_height, top_left, degree)
+        frame = generateImage(frame, glass_width,
+                              glass_height, top_left, degree)
 
     cv2.imshow("Frame", frame)
 
