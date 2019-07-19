@@ -14,7 +14,7 @@ def generateNewGlass(frame):
     bottom_glass = (landmarks.part(30).x, landmarks.part(30).y)
 
     radian = atan2(bottom_glass[1]-center_glass[1],bottom_glass[0]-center_glass[0])
-    print(degrees(radian)-90)
+    degree = degrees(radian)-90
 
     glass_width = int(hypot(left_glass[0] - right_glass[0],
                            left_glass[1] - right_glass[1])*1.1)
@@ -25,10 +25,10 @@ def generateNewGlass(frame):
     bottom_right = (int(center_glass[0] + glass_width / 2),
                     int(center_glass[1] + glass_height / 2))
 
-    return glass_width, glass_height, top_left
+    return glass_width, glass_height, top_left, degree
 
 
-def generateImage(frame, glass_width, glass_height, top_left):
+def generateImage(frame, glass_width, glass_height, top_left, degree):
     resized_glass = cv2.resize(glass_image, (glass_width, glass_height))
     resized_glass_gray = cv2.cvtColor(resized_glass, cv2.COLOR_BGR2GRAY)
     _, glass_mask = cv2.threshold(
@@ -55,9 +55,7 @@ glass_mask = np.zeros((rows, cols), np.uint8)
 # Loading Face detector
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
-work = True
 
-glass_width, glass_height, top_left = None, None, None
 while True:
     _, frame = cap.read()
     glass_mask.fill(0)
@@ -66,13 +64,8 @@ while True:
     faces = detector(frame)
 
     for face in faces:
-        if(work):
-            glass_width, glass_height, top_left = generateNewGlass(frame)
-            frame = generateImage(frame, glass_width, glass_height, top_left)
-            work = False
-        else:
-            frame = generateImage(frame, glass_width, glass_height, top_left)
-            work = True
+        glass_width, glass_height, top_left, degree = generateNewGlass(frame)
+        frame = generateImage(frame, glass_width, glass_height, top_left, degree)
 
     cv2.imshow("Frame", frame)
 
