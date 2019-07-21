@@ -18,7 +18,6 @@ def generateNewGlass(frame):
     center_glass = (landmarks.part(27).x, landmarks.part(27).y)
     left_glass = (landmarks.part(0).x, landmarks.part(0).y)
     right_glass = (landmarks.part(16).x, landmarks.part(16).y)
-    bottom_glass = (landmarks.part(30).x, landmarks.part(30).y)
 
     radian = atan2(left_glass[1]-right_glass[1],
                    left_glass[0]-right_glass[0])
@@ -28,7 +27,7 @@ def generateNewGlass(frame):
                             left_glass[1] - right_glass[1])*1.1)
     glass_height = int(glass_width * 0.65)
 
-    top_left = (biggerThanZero(int(center_glass[0] - glass_width / 2)), biggerThanZero(top_glass[1]-20))
+    top_left = (biggerThanZero(int(center_glass[0] - glass_width / 2)), biggerThanZero(int(top_glass[1] - glass_height*0.2)))
 
     return glass_width, glass_height, top_left, degree
 
