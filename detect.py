@@ -20,9 +20,9 @@ def generateNewGlass(frame):
     right_glass = (landmarks.part(16).x, landmarks.part(16).y)
     bottom_glass = (landmarks.part(30).x, landmarks.part(30).y)
 
-    radian = atan2(bottom_glass[1]-center_glass[1],
-                   bottom_glass[0]-center_glass[0])
-    degree = degrees(radian)-90
+    radian = atan2(left_glass[1]-right_glass[1],
+                   left_glass[0]-right_glass[0])
+    degree = degrees(radian)-180
 
     glass_width = int(hypot(left_glass[0] - right_glass[0],
                             left_glass[1] - right_glass[1])*1.1)
